@@ -13,6 +13,21 @@ class CustomAdapter (private val context: Context): RecyclerView.Adapter<Recycle
 
     var callback: CustomAdapterCallback? = null
 
+    fun refresh(list: List<Item>) {
+        items.apply {
+            clear()
+            addAll(list)
+        }
+        notifyDataSetChanged()
+    }
+
+    fun add(item: Item) {
+        if (items.map { it.createdAt }.contains(item.createdAt))
+            return
+        items.add(item)
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount(): Int = items.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
