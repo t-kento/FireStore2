@@ -22,6 +22,8 @@ class CustomAdapter(private val context: Context): RecyclerView.Adapter<Recycler
     }
 
     fun add(item: Item){
+        if (items.map { it.id }.contains(item.id))
+            return
         items.add(item)
         notifyDataSetChanged()
     }
@@ -48,7 +50,10 @@ class CustomAdapter(private val context: Context): RecyclerView.Adapter<Recycler
             editSinger.text = currentItem.editSinger
             singer.text ="歌手:"
            deleteButton.setOnClickListener {
-               deleteFromRecyclerView()
+//               deleteFromRecyclerView()
+               items.remove(currentItem)
+               notifyDataSetChanged()
+               callback?.onDelete(currentItem)
             }
         }
     }
@@ -61,17 +66,18 @@ class CustomAdapter(private val context: Context): RecyclerView.Adapter<Recycler
 
     interface CustomAdapterCallback {
         fun onClick(data: Item)
+        fun onDelete(data: Item)
     }
 
-    fun deleteFromRecyclerView(item: Item?) {
-        if (items != null) {
-            val index: Int = items.indexOf(item)
-            if (-1 != index) {
-                val isDelete: Boolean = items.remove(item)
-                if (isDelete) {
-                    CustomAdapterCallback.notifyItemRemoved(index)
-                }
-            }
-        }
-    }
+//    fun deleteFromRecyclerView(item: Item?) {
+//        if (items != null) {
+//            val index: Int = items.indexOf(item)
+//            if (-1 != index) {
+//                val isDelete: Boolean = items.remove(item)
+//                if (isDelete) {
+//                    CustomAdapterCallback.notifyItemRemoved(index)
+//                }
+//            }
+//        }
+//    }
 }

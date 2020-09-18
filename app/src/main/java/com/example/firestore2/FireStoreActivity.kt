@@ -11,6 +11,7 @@ import com.google.firebase.firestore.Query
 import com.squareup.okhttp.internal.DiskLruCache
 import kotlinx.android.synthetic.main.fire_main.*
 import kotlinx.android.synthetic.main.firestore_activity.*
+import java.util.*
 
 class FireStoreActivity :AppCompatActivity(){
 
@@ -41,6 +42,10 @@ class FireStoreActivity :AppCompatActivity(){
     private fun initRecyclerView() {
         customAdapter.callback = object : CustomAdapter.CustomAdapterCallback {
             override fun onClick(data: Item) {
+            }
+
+            override fun onDelete(data: Item) {
+                deleteItem(data)
             }
         }
         memoRecyclerView?.apply {
@@ -73,11 +78,13 @@ class FireStoreActivity :AppCompatActivity(){
         }
 
         db.collection("singer")
-            .add(item)
-            .addOnSuccessListener { documentReference ->
+//            .add(item)
+            .document(item.id)
+            .set(item)
+            .addOnSuccessListener {
                 Log.d(
                     "FireStoreActivity",
-                    "DocumentSnapshot added with ID: " + documentReference.id
+                    "DocumentSnapshot added with ID: $it"
                 )
             }
             .addOnFailureListener { e -> Log.w("FireStoreActivity", "Error adding document", e) }
@@ -86,6 +93,7 @@ class FireStoreActivity :AppCompatActivity(){
     private fun initData(){
         FirebaseFirestore.getInstance()
             .collection("singer")
+            .whereEqualTo(Item::deletedAt.name, null)
             .get()
             .addOnCompleteListener() {
                 if (!it.isSuccessful){
@@ -107,6 +115,7 @@ class FireStoreActivity :AppCompatActivity(){
     private fun intiObserver(){
         FirebaseFirestore.getInstance()
             .collection("singer")
+            .whereEqualTo(Item::deletedAt.name, null)
             .orderBy(Item::createdAt.name,Query.Direction.DESCENDING)
             .limit(1L)
             .addSnapshotListener{snapshot,firebaseFirestoreException->
@@ -126,6 +135,22 @@ class FireStoreActivity :AppCompatActivity(){
 
 
             }
+    }
+
+    private fun deleteItem(data: Item) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("singer")
+            .document(data.id)
+            .set(data.apply {
+                deletedAt = Date()
+            })
+            .addOnSuccessListener {
+                Log.d(
+                    "FireStoreActivity",
+                    "DocumentSnapshot added with ID: $it"
+                )
+            }
+            .addOnFailureListener { e -> Log.w("FireStoreActivity", "Error adding document", e) }
     }
 
 }
