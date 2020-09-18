@@ -1,3 +1,14 @@
 package com.example.firestore2
 
-class Item (val singer: String, val editSinger: String, val text2: String)
+import com.google.firebase.firestore.ServerTimestamp
+import java.util.*
+
+class Item {
+    var singer: String=""
+    var editSinger: String=""
+    var text2: String=""
+
+    @ServerTimestamp
+    var createdAt: Date? = null
+}
+
